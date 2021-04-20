@@ -175,6 +175,9 @@ ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
 # dj_rest_auth settings
-# REST_AUTH_SERIALIZERS ={
-#     "LOGIN_SERIALIZER": "authentication.serializers.CustomLoginSerializer",
-# }
+REST_AUTH_LOGIN_SERIALIZERS = {
+    "LOGIN_SERIALIZER": "authentication.serializers.CustomLoginSerializer",
+}
+REST_AUTH_REGISTER_SERIALIZERS = {
+    "REGISTER_SERIALIZER": "authentication.serializers.CustomRegisterSerializer",
+}

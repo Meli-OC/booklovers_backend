@@ -17,6 +17,7 @@ dj-rest-auth = "^2.1.4"
 pytest-django = "^4.2.0"
 python-dotenv = "^0.17.0"
 django-cors-headers = "^3.7.0"
+djangorestframework-simplejwt = "^4.6.0"
 
 [tool.poetry.dev-dependencies]
 
