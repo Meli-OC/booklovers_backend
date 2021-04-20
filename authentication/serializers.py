@@ -22,13 +22,6 @@ class CustomRegisterSerializer(RegisterSerializer):
         user.save()
         return user
 
-
-# Login serializer
-class CustomLoginSerializer(LoginSerializer):
-    email = serializers.EmailField()
-    password = serializers.CharField()
-
-
 # User serializer
 class CustomUserDetailsSerializer(serializers.ModelSerializer):
     class Meta:
