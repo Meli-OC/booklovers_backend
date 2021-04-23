@@ -22,6 +22,7 @@ class CustomRegisterSerializer(RegisterSerializer):
         user.save()
         return user
 
+
 # User serializer
 class CustomUserDetailsSerializer(serializers.ModelSerializer):
     class Meta:

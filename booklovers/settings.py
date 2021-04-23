@@ -189,3 +189,6 @@ REST_AUTH_REGISTER_SERIALIZERS = {
 REST_AUTH_SERIALIZERS = {
     "USER_DETAILS_SERIALIZER": "authentication.serializers.CustomUserDetailsSerializer"
 }
+
+
+LOGIN_URL = 'http://localhost:8888/api/auth/login/'
