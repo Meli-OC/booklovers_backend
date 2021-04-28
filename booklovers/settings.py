@@ -25,7 +25,15 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG")
 
-ALLOWED_HOSTS = ["booklovers.com", "localhost", "127.0.0.1",]
+ALLOWED_HOSTS = [
+    "booklovers.com",
+    "localhost",
+    "127.0.0.1",
+    "https://booklovers.com:8888",
+    "https://booklovers.com:3000",
+    "https://localhost:8888",
+    "https://localhost:3000"
+]
 
 
 # Application definition
@@ -41,6 +49,7 @@ INSTALLED_APPS = [
 
     # Third party
     'corsheaders',
+    'django_extensions',
     'rest_framework',
     'rest_framework.authtoken',
     'allauth',
@@ -50,7 +59,6 @@ INSTALLED_APPS = [
     'dj_rest_auth.registration',
 
     # providers
-    'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.google',
 
     # local
@@ -64,7 +72,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         # 'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     ], 
 }
@@ -74,12 +82,12 @@ AUTHENTICATION_BACKENDS = (
    "allauth.account.auth_backends.AuthenticationBackend"
 )
 
-# CORS_ORIGIN_WHITELIST = (
-#     'http://localhost:8888',
-#     'http://localhost:3000',
-# )
+# CORS_ORIGIN_ALLOW_ALL = True
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:8888',
+    'http://localhost:3000',
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -185,7 +193,8 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "none"
-
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
+SOCIALACCOUNT_EMAIL_REQUIRED = False
 # dj_rest_auth settings
 REST_USE_JWT = True
 JWT_AUTH_COOKIE = "user-token"

@@ -23,6 +23,7 @@ The only dependencies for this project should be docker and docker-compose. When
 - Create a .env.dev file with that syntax:
     - `DEBUG=1`
     - `DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]`
+    - `POSTGRES_ENGINE=django.db.backends.postgresql` 
     - `SECRET_KEY=secret_key (copy/paste your terminal's code)`
     - `POSTGRES_USER=username`
     - `POSTGRES_PASSWORD=password`
