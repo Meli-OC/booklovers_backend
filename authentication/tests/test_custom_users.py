@@ -21,3 +21,5 @@ def test_create_superuser():
     assert admin_user.is_active == True
     assert admin_user.is_staff == True
     assert admin_user.is_superuser == True
+
+    

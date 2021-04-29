@@ -23,7 +23,7 @@ class CustomRegisterSerializer(RegisterSerializer):
         return user
 
 
-# User serializer
+# User  details serializer
 class CustomUserDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
