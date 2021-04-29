@@ -60,6 +60,7 @@ INSTALLED_APPS = [
 
     # providers
     'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
 
     # local
     'authentication',
