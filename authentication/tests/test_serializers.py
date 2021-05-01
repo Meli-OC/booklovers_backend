@@ -4,7 +4,6 @@ from authentication.serializers import CustomRegisterSerializer, CustomUserDetai
 @pytest.mark.django_db
 def test_valid_CustomSerializer():
     valid_serializer_data = {
-        "pk": 1,
         "username": "test",
         "email": "test@test.com",
         "first_name": "toto",
@@ -16,3 +15,17 @@ def test_valid_CustomSerializer():
     assert serializer.validated_data == valid_serializer_data
     assert serializer.data == valid_serializer_data
     assert serializer.errors == {}
+
+@pytest.mark.django_db
+def test_invalid_CustomSerializer():
+    invalid_serializer_data = {
+        "email": "test@test.com",
+        "first_name": "toto",
+        "last_name": "dupont"
+    }
+
+    serializer = CustomUserDetailsSerializer(data=invalid_serializer_data)
+    assert not serializer.is_valid()
+    assert serializer.validated_data == {}
+    assert serializer.data == invalid_serializer_data
+    assert serializer.errors == {'username': ['This field is required.']}
