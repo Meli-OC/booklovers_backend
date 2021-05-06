@@ -6,8 +6,8 @@ BOOK_CATEGORIES = [
     "biography",
     "historical",
     "mystery",
-    "crime",
+    "romance",
     "love",
-    "erotical",
+    "erotica",
     "humour",
 ]

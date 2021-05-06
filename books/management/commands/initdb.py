@@ -47,10 +47,47 @@ class Command(BaseCommand):
         for category in categories:
             parameters = {
                 "q": f"incategory:{category}",
-                "key": os.getenv("GOOGLE_API_KEY")
             }
             r = requests.get(const.URL, parameters)
             data = r.json()["items"]
             for book in data:
-                book["volumeInfo"][categories] = f"{category}, {book['categories']}"
                 books.append(book)
+        return books
+
+    def categories_db(self, books):
+        """ put books' categories data into the table """
+        for book in books:
+            categories = book["volumeInfo"].get("categories")
+
+            for cat in categories:
+                try:
+                    Category.objects.bulk_create(
+                        [
+                            Category(category_name=cat)
+                        ]
+                    )
+                except IntegrityError:
+                    return "No category name available"
+
+    def clean_data(self, books):
+        return [book for book in books if self.is_valid(book)]
+
+    @staticmethod
+    def is_valid(book):
+        for el in book:
+            categories = book["volumeInfo"].get("categories")
+            if categories is None:
+                return False
+            if categories == "":
+                return False
+            if not categories:
+                return False
+
+        return True
+
+    def handle(self, *args, **options):
+        self.clean_db()
+        books_list = self.fetch_books()
+        clean_books = self.clean_data(books_list)
+        self.categories_db(clean_books)
+        self.stdout.write(self.style.SUCCESS("Done"))

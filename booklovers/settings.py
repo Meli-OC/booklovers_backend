@@ -72,8 +72,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.SessionAuthentication',
-        # 'rest_framework.authentication.TokenAuthentication',
         'dj_rest_auth.jwt_auth.JWTCookieAuthentication',
     ], 
 }
@@ -188,7 +186,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "authentication.CustomUser"
-SITE_ID = 2
+SITE_ID = 1
 
 # Allauth setup
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
@@ -196,8 +194,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "none"
-SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
-SOCIALACCOUNT_EMAIL_REQUIRED = False
+
 # dj_rest_auth settings
 REST_USE_JWT = True
 JWT_AUTH_COOKIE = "user-token"
@@ -209,4 +206,3 @@ REST_AUTH_SERIALIZERS = {
     "USER_DETAILS_SERIALIZER": "authentication.serializers.CustomUserDetailsSerializer"
 }
 
-# social providers settings
