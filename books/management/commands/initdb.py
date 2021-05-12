@@ -14,19 +14,19 @@ class Command(BaseCommand):
         parser.add_argument(
             '--categories',
             type=int,
-            default=2,
+            default=1000,
             help="Categories' number to fetch"
         )
         parser.add_argument(
             '--authors',
             type=int,
-            default=2,
+            default=1000,
             help="Authors' number to fetch"
         )
         parser.add_argument(
             '--books',
             type=int,
-            default=2,
+            default=1000,
             help="Books number to fetch"
         )
 
@@ -111,7 +111,7 @@ class Command(BaseCommand):
                 book.categories.add(*categories)
 
             authors = []
-            for author_name in book_info.get["authors"]:
+            for author_name in book_info.get("authors"):
                 author, created = Author.objects.get_or_create(
                     author_name=author_name
                 )
