@@ -14,48 +14,56 @@ class Command(BaseCommand):
         parser.add_argument(
             '--categories',
             type=int,
-            default=1000,
+            default=10000,
             help="Categories' number to fetch"
         )
         parser.add_argument(
             '--authors',
             type=int,
-            default=1000,
+            default=10000,
             help="Authors' number to fetch"
         )
         parser.add_argument(
             '--books',
             type=int,
-            default=1000,
+            default=10000,
             help="Books number to fetch"
         )
 
-    @staticmethod
-    def clean_db():
+    @classmethod
+    def clean_db(cls):
         """ Clear all data from the database """
         Category.objects.all().delete()
         Author.objects.all().delete()
         Book.objects.all().delete()
 
-    @staticmethod
-    def fetch_books():
+    @classmethod
+    def fetch_books(cls):
         """
             Method to fetch books data from google books api with specific parameters
         """
         categories = const.BOOK_CATEGORIES
+        keywords = const.KEYWORDS
+        page_size = 10
         books = []
-        for category in categories:
-            parameters = {
-                "q": f"incategory:{category}",
-            }
-            r = requests.get(const.URL, parameters)
-            data = r.json()["items"]
-            for book in data:
-                books.append(book)
-        return books
+        for word in keywords:
+            for category in categories:
+                for page in range(1):
+                    parameters = {
+                        "printType": "books",
+                        "q": f"{word}",
+                        "subject": f"{category}",
+                        "startIndex": page * page_size,
+                        "maxResults": page_size
+                    }
+                    r = requests.get(const.URL, parameters)
+                    data = r.json()["items"]
+                    for book in data:
+                        books.append(book)
+            return books
 
-    @staticmethod
-    def categories_db(books):
+    @classmethod
+    def categories_db(cls, books):
         """ put books' categories data into the table """
         for book in books:
             categories = book["volumeInfo"].get("categories")
@@ -70,8 +78,8 @@ class Command(BaseCommand):
                     except IntegrityError:
                         return "No category name available"
 
-    @staticmethod
-    def authors_db(books):
+    @classmethod
+    def authors_db(cls, books):
         """ put authors' name into the table """
         for book in books:
             authors = book["volumeInfo"].get("authors")
@@ -86,8 +94,8 @@ class Command(BaseCommand):
                     except IntegrityError:
                         return "No author name available"
 
-    @staticmethod
-    def books_db(books):
+    @classmethod
+    def books_db(cls, books):
         """ put all books' data in the table """
         for data in books:
             book_info = data["volumeInfo"]
@@ -121,18 +129,19 @@ class Command(BaseCommand):
     def clean_data(self, books):
         return [book for book in books if self.is_valid(book)]
 
-    @staticmethod
-    def is_valid(book):
+    @classmethod
+    def is_valid(cls, book):
         for el in book:
             categories = book["volumeInfo"].get("categories")
             authors = book["volumeInfo"].get("authors")
             description = book["volumeInfo"].get("description")
             image = book["volumeInfo"].get("imageLinks")
-            if (categories and authors and description and image) is None:
+            published_date = book["volumeInfo"].get("publishedDate")
+            if (categories and authors and description and image and published_date) is None:
                 return False
-            if (categories and authors and description and image) == "":
+            if (categories and authors and description and image and published_date) == "":
                 return False
-            if not (categories and authors and description and image):
+            if not (categories and authors and description and image and published_date):
                 return False
 
         return True
@@ -140,7 +149,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.clean_db()
         books_list = self.fetch_books()
+        print(len(books_list))
         clean_books = self.clean_data(books_list)
+        print(len(clean_books))
         self.categories_db(clean_books)
         self.authors_db(clean_books)
         self.books_db(clean_books)
