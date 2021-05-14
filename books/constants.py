@@ -17,10 +17,10 @@ BOOK_CATEGORIES = [
 ]
 
 KEYWORDS = [
-    "thriller", "crime", "meurtre", "amour", "passion", "espionage", "enquete", "enquête",
-    "loi", "histoire", "mystère", "mystere", "historique", "hero", "héros", "heros", "héro",
+    "Thriller", "crime", "meurtre", "amour", "passion", "espionage",  "enquête",
+    "loi", "histoire", "Mystère", "Historique", "hero", "héros", "héro",
     "murder", "love", "mystery", "history", "story", "humour", "drole", "happiness", "dream",
     "magic", "mage", "sorceress", "adventure", "aventure", "policier", "futur", "vampire", "loup-garou",
-    "loup garou", "werewolf", "mythology", "mythologie", "computeur", "informatique", "javascript", "python",
+    "werewolf", "mythology", "mythologie", "computeur", "informatique", "javascript", "python",
     "react", "reactjs", "php", "go", "flutter", "node"
 ]

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from allauth.socialaccount.providers.google import views as google_views
+
 
 
 urlpatterns = [

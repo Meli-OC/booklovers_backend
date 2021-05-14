@@ -1,12 +1,12 @@
 import os
 import requests
-from django.core.exceptions import ValidationError
+import unicodedata
+import re
 
 import books.constants as const
 from django.db import IntegrityError
-from books.models import Author, Category, Book
+from books.models import Author, Category, Book, Keyword
 from django.core.management.base import BaseCommand
-from django.db.utils import DataError
 
 
 class Command(BaseCommand):
@@ -16,13 +16,13 @@ class Command(BaseCommand):
         parser.add_argument(
             '--categories',
             type=int,
-            default=10000,
+            default=100000,
             help="Categories' number to fetch"
         )
         parser.add_argument(
             '--authors',
             type=int,
-            default=10000,
+            default=100000,
             help="Authors' number to fetch"
         )
         parser.add_argument(
@@ -40,17 +40,30 @@ class Command(BaseCommand):
         Book.objects.all().delete()
 
     @classmethod
+    def clean_words(cls):
+        keywords = const.KEYWORDS
+        normalized_words = []
+        for word in keywords:
+            lowercase_word = word.lower()
+            low_case_strip_accent = ''.join(n for n in unicodedata
+                                            .normalize('NFD', lowercase_word)
+                                            if unicodedata.category(n) != 'Mn')
+            word_stripped_punct = re.sub(r"[\W]", " ", low_case_strip_accent)
+            normalized_words.append(word_stripped_punct)
+        return normalized_words
+
+    @classmethod
     def fetch_books(cls):
         """
             Method to fetch books data from google books api with specific parameters
         """
         categories = const.BOOK_CATEGORIES
-        keywords = const.KEYWORDS
         page_size = 40
         books = []
+        keywords = Keyword.objects.all()
         for word in keywords:
             for category in categories:
-                for page in range(1):
+                for page in range(20):
                     parameters = {
                         "printType": "books",
                         "q": f"{word}",
@@ -80,6 +93,18 @@ class Command(BaseCommand):
                         )
                     except IntegrityError:
                         continue
+
+    @classmethod
+    def keywords_db(cls, keywords):
+        for word in keywords:
+            try:
+                Keyword.objects.bulk_create(
+                    [
+                        Keyword(keyword=word)
+                    ]
+                )
+            except IntegrityError:
+                continue
 
     @classmethod
     def authors_db(cls, books):
@@ -136,7 +161,9 @@ class Command(BaseCommand):
                 continue
 
     def handle(self, *args, **options):
+        normalized_words = self.clean_words()
         self.clean_db()
+        self.keywords_db(normalized_words)
         books_list = self.fetch_books()
         print(len(books_list))
         self.categories_db(books_list)
