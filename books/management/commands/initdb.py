@@ -1,5 +1,7 @@
 import os
 import requests
+from django.core.exceptions import ValidationError
+
 import books.constants as const
 from django.db import IntegrityError
 from books.models import Author, Category, Book
@@ -44,7 +46,7 @@ class Command(BaseCommand):
         """
         categories = const.BOOK_CATEGORIES
         keywords = const.KEYWORDS
-        page_size = 10
+        page_size = 40
         books = []
         for word in keywords:
             for category in categories:
@@ -65,6 +67,7 @@ class Command(BaseCommand):
     @classmethod
     def categories_db(cls, books):
         """ put books' categories data into the table """
+
         for book in books:
             categories = book["volumeInfo"].get("categories")
             if categories is not None:
@@ -76,7 +79,7 @@ class Command(BaseCommand):
                             ]
                         )
                     except IntegrityError:
-                        return "No category name available"
+                        continue
 
     @classmethod
     def authors_db(cls, books):
@@ -92,67 +95,51 @@ class Command(BaseCommand):
                             ]
                         )
                     except IntegrityError:
-                        return "No author name available"
+                        continue
 
     @classmethod
     def books_db(cls, books):
         """ put all books' data in the table """
         for data in books:
-            book_info = data["volumeInfo"]
-            book_title = book_info.get("title")
-            book_description = book_info.get("description")
-            book_published = book_info.get("publishedDate")
-            book_image = book_info.get("imageLinks").get("thumbnail")
-            book = Book.objects.create(
-                title=book_title,
-                description=book_description,
-                published_date=book_published,
-                image_url=book_image,
-            )
-
-            categories = []
-            for cat in book_info.get("categories"):
-                category, created = Category.objects.get_or_create(
-                    category_name=cat
+            try:
+                book_info = data["volumeInfo"]
+                book_title = book_info.get("title")
+                book_description = book_info.get("description")
+                book_published = book_info.get("publishedDate")
+                book_image = book_info.get("imageLinks").get("thumbnail")
+                book = Book.objects.create(
+                    title=book_title,
+                    description=book_description,
+                    published_date=book_published,
+                    image_url=book_image,
                 )
-                categories.append(category)
-                book.categories.add(*categories)
 
-            authors = []
-            for author_name in book_info.get("authors"):
-                author, created = Author.objects.get_or_create(
-                    author_name=author_name
-                )
-                authors.append(author)
-                book.authors.add(*authors)
+                books_cat = book_info.get("categories")
+                books_authors = book_info.get("authors")
+                if (books_cat and books_authors) is not None:
+                    categories = []
+                    for cat in books_cat:
+                        category, created = Category.objects.get_or_create(
+                            category_name=cat
+                        )
+                        categories.append(category)
+                        book.categories.add(*categories)
 
-    def clean_data(self, books):
-        return [book for book in books if self.is_valid(book)]
-
-    @classmethod
-    def is_valid(cls, book):
-        for el in book:
-            categories = book["volumeInfo"].get("categories")
-            authors = book["volumeInfo"].get("authors")
-            description = book["volumeInfo"].get("description")
-            image = book["volumeInfo"].get("imageLinks")
-            published_date = book["volumeInfo"].get("publishedDate")
-            if (categories and authors and description and image and published_date) is None:
-                return False
-            if (categories and authors and description and image and published_date) == "":
-                return False
-            if not (categories and authors and description and image and published_date):
-                return False
-
-        return True
+                    authors = []
+                    for author_name in books_authors:
+                        author, created = Author.objects.get_or_create(
+                            author_name=author_name
+                        )
+                        authors.append(author)
+                        book.authors.add(*authors)
+            except (IntegrityError, AttributeError):
+                continue
 
     def handle(self, *args, **options):
         self.clean_db()
         books_list = self.fetch_books()
         print(len(books_list))
-        clean_books = self.clean_data(books_list)
-        print(len(clean_books))
-        self.categories_db(clean_books)
-        self.authors_db(clean_books)
-        self.books_db(clean_books)
+        self.categories_db(books_list)
+        self.authors_db(books_list)
+        self.books_db(books_list)
         self.stdout.write(self.style.SUCCESS("Done"))
