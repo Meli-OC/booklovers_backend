@@ -15,10 +15,6 @@ class DetailBookView(RetrieveAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
 
-    # def get_queryset(self):
-    #     book_id = self.kwargs['pk']
-    #     return Book.objects.get(pk=book_id)
-
 
 class AuthorListView(ListAPIView):
     permission_classes = [AllowAny]
