@@ -2,8 +2,16 @@ from rest_framework import serializers
 from .models import Book, Category, Author
 
 
+class AuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Author
+        fields = ('id', 'author_name', 'books')
+
+
 class BookSerializer(serializers.ModelSerializer):
+    authors = AuthorSerializer(many=True)
+
     class Meta:
         model = Book
-        fields = '__all__'
+        fields = ('id', 'title', 'description', 'published_date', 'authors')
         read_only_fields = ('id', 'title', 'description', 'published_date', 'authors')
