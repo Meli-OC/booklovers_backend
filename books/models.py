@@ -21,7 +21,7 @@ class Author(models.Model):
 class Book(models.Model):
     """ Books table """
 
-    title = models.CharField(max_length=255, null=False, blank=False)
+    title = models.CharField(max_length=255, unique=True,  null=False, blank=False)
     description = models.TextField(null=False, blank=False)
     published_date = models.CharField(max_length=50)
     image_url = models.URLField()

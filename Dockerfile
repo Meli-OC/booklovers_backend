@@ -23,3 +23,5 @@ RUN pip install --no-cache --upgrade pip \
     && poetry config virtualenvs.create false \
     && poetry install --no-dev
 
+
+# COPY . /app

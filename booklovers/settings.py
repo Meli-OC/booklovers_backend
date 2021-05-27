@@ -84,10 +84,9 @@ AUTHENTICATION_BACKENDS = (
 # CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ORIGIN_WHITELIST = (
-    'http://localhost:8888',
-    'https://localhost:8888',
+    'http://localhost:8080',
     'http://localhost:3000',
-    'https://localhost:3000',
+    'http://localhost:3003',
 )
 
 MIDDLEWARE = [

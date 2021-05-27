@@ -6,6 +6,7 @@ import books.constants as const
 from django.db import IntegrityError
 from books.models import Author, Category, Book, Keyword
 from django.core.management.base import BaseCommand
+from django.db.utils import DataError
 
 
 class Command(BaseCommand):
@@ -57,24 +58,29 @@ class Command(BaseCommand):
             Method to fetch books data from google books api with specific parameters
         """
         categories = const.BOOK_CATEGORIES
-        page_size = 40
-        books = []
+        page_size = 10
+        books_info_list = []
         keywords = Keyword.objects.all()
+
         for word in keywords:
             for category in categories:
-                for page in range(20):
-                    parameters = {
-                        "printType": "books",
-                        "q": f"{word}",
-                        "subject": f"{category}",
-                        "startIndex": page * page_size,
-                        "maxResults": page_size
-                    }
-                    r = requests.get(const.URL, parameters)
-                    data = r.json()["items"]
-                    for book in data:
-                        books.append(book)
-            return books
+                for page in range(1):
+                    try:
+                        parameters = {
+                            "printType": "books",
+                            "q": f"{word}",
+                            "subject": f"{category}",
+                            "startIndex": page * page_size,
+                            "maxResults": page_size
+                        }
+                        r = requests.get(const.URL, parameters)
+                        data = r.json()["items"]
+                        # books = data.get("items")
+                        for book in data:
+                            books_info_list.append(book)
+                    except (KeyError, TypeError, DataError):
+                        continue
+        return books_info_list
 
     @classmethod
     def categories_db(cls, books):
@@ -90,7 +96,7 @@ class Command(BaseCommand):
                                 Category(category_name=cat)
                             ]
                         )
-                    except IntegrityError:
+                    except (IntegrityError, TypeError, KeyError, DataError):
                         continue
 
     @classmethod
@@ -102,7 +108,7 @@ class Command(BaseCommand):
                         Keyword(keyword=word)
                     ]
                 )
-            except IntegrityError:
+            except (IntegrityError, DataError):
                 continue
 
     @classmethod
@@ -118,7 +124,7 @@ class Command(BaseCommand):
                                 Author(author_name=author)
                             ]
                         )
-                    except IntegrityError:
+                    except (IntegrityError, DataError):
                         continue
 
     @classmethod
@@ -156,7 +162,7 @@ class Command(BaseCommand):
                         )
                         authors.append(author)
                         book.authors.add(*authors)
-            except (IntegrityError, AttributeError):
+            except (IntegrityError, AttributeError, DataError):
                 continue
 
     def handle(self, *args, **options):
