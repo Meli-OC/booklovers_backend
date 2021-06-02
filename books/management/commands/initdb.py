@@ -63,7 +63,7 @@ class Command(BaseCommand):
         keywords = Keyword.objects.all()
         for word in keywords:
             for category in categories:
-                for page in range(10):
+                for page in range(7):
                     try:
                         parameters = {
                             "printType": "books",

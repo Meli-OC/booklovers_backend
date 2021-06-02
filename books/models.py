@@ -53,8 +53,7 @@ def verify_uniqueness(sender, **kwargs):
     authors = kwargs.get('pk_set', None)
 
     if action == "pre_add":
-        for author in authors:
-            if Book.objects.filter(title=book.title).filter(authors=author):
-                raise IntegrityError(
-                    f"Book with name {book.title} already exists for author {Author.objects.get(pk=author)}"
-                )
+        if Book.objects.filter(title=book.title, authors__in=authors).count():
+            raise IntegrityError(
+                "This book already exists for author"
+            )
