@@ -58,13 +58,12 @@ class Command(BaseCommand):
             Method to fetch books data from google books api with specific parameters
         """
         categories = const.BOOK_CATEGORIES
-        page_size = 10
+        page_size = 40
         books_info_list = []
         keywords = Keyword.objects.all()
-
         for word in keywords:
             for category in categories:
-                for page in range(1):
+                for page in range(10):
                     try:
                         parameters = {
                             "printType": "books",
@@ -74,10 +73,8 @@ class Command(BaseCommand):
                             "maxResults": page_size
                         }
                         r = requests.get(const.URL, parameters)
-                        data = r.json()["items"]
-                        # books = data.get("items")
-                        for book in data:
-                            books_info_list.append(book)
+                        if r.status_code == 200:
+                            books_info_list.extend([book for book in r.json()["items"]])
                     except (KeyError, TypeError, DataError):
                         continue
         return books_info_list
@@ -116,7 +113,7 @@ class Command(BaseCommand):
         """ put authors' name into the table """
         for book in books:
             authors = book["volumeInfo"].get("authors")
-            if authors is not None:
+            if authors is  not None:
                 for author in authors:
                     try:
                         Author.objects.bulk_create(
@@ -166,9 +163,9 @@ class Command(BaseCommand):
                 continue
 
     def handle(self, *args, **options):
-        normalized_words = self.clean_words()
+        # normalized_words = self.clean_words()
         self.clean_db()
-        self.keywords_db(normalized_words)
+        # self.keywords_db(normalized_words)
         books_list = self.fetch_books()
         print(len(books_list))
         self.categories_db(books_list)
